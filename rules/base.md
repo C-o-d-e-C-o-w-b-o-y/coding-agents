@@ -53,7 +53,3 @@ Type-checking and tests verify code correctness, not feature correctness.
 - For UI/frontend changes: start the dev server and use the feature in a browser.
 - Test the golden path and the obvious edge cases.
 - If you can't actually exercise the feature, say so — don't claim success.
-
-## 6. Commits
-
-No AI co-author trailers in commit messages. Skip the `Co-Authored-By: <agent name>` line entirely, regardless of which agent you are.
