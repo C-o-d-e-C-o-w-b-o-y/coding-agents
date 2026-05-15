@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Sync the coding-agents config into a consumer repo.
 # Usage: bin/sync [target-dir]   (defaults to $PWD)
+# Preferred entrypoint: bin/coding-agents install [target-dir]
 #
-# - Symlinks every skill into .claude/skills/ and .agents/skills/
+# - Symlinks every shared skill into .claude/skills/ and .agents/skills/
+# - Symlinks every repo-local skill from .agent-local/skills/ into both agent skill dirs
 # - Symlinks every prompt into .claude/commands/ (Codex reads ~/.codex/prompts globally)
 # - Generates AGENTS.md = rules/base.md + agents.local.md
 # - Symlinks CLAUDE.md → AGENTS.md
@@ -44,16 +46,24 @@ link_into() {
 echo "Syncing → $TARGET"
 echo "  source: $CONFIG_DIR"
 
+link_skill_set() {
+  local source_dir="$1"
+  local destination_dir="$2"
+
+  [ -d "$source_dir" ] || return
+
+  for skill_dir in "$source_dir"/*/; do
+    [ -d "$skill_dir" ] || continue
+    name="$(basename "$skill_dir")"
+    link_into "${skill_dir%/}" "$destination_dir/$name"
+  done
+}
+
 # --- skills ---
 for agent_path in ".claude/skills" ".agents/skills"; do
   mkdir -p "$TARGET/$agent_path"
-  if [ -d "$CONFIG_DIR/skills" ]; then
-    for skill_dir in "$CONFIG_DIR/skills"/*/; do
-      [ -d "$skill_dir" ] || continue
-      name="$(basename "$skill_dir")"
-      link_into "${skill_dir%/}" "$TARGET/$agent_path/$name"
-    done
-  fi
+  link_skill_set "$CONFIG_DIR/skills" "$TARGET/$agent_path"
+  link_skill_set "$TARGET/.agent-local/skills" "$TARGET/$agent_path"
 done
 
 # --- prompts (Claude slash commands) ---
