@@ -8,24 +8,20 @@ Update the current repository to the latest shared `coding-agents` state by runn
 
 Workflow:
 
-1. Find the `coding-agents` CLI.
-   Prefer these locations in order:
-   - `.agent-config/bin/coding-agents` from the current repo root
-   - `coding-agents` on `PATH`
-   - `../coding-agents/bin/coding-agents` relative to the current repo
-
-2. Run the managed update flow for the current repo.
-   - Use `.../bin/coding-agents update <current-repo>`
+1. Run the repo-local managed update flow.
+   - Use `.agent-config/bin/coding-agents update <current-repo>`
+   - This path is installed by `coding-agents install` and is the stable entrypoint for all repos after initial setup.
    - Do not manually copy skills unless the CLI is unavailable and the user explicitly asks for a fallback
 
-3. Explain what the flow does.
+2. Explain what the flow does.
    - Pulls the latest `coding-agents` changes from GitHub with `git pull --ff-only`
    - Symlinks shared skills into `.agents/skills/` and `.claude/skills/`
+   - Refreshes `.agent-config/bin/coding-agents` as the stable repo-local CLI entrypoint
    - Regenerates `AGENTS.md` from shared base rules plus `agents.local.md`
    - Preserves repo-specific instructions in `agents.local.md`
 
-4. Verify and report the resulting state.
-   - Run `.../bin/coding-agents doctor <current-repo>`
+3. Verify and report the resulting state.
+   - Run `.agent-config/bin/coding-agents doctor <current-repo>`
    - Mention whether `CLAUDE.md` is a symlink or an existing regular file left in place
    - Tell the user to restart the agent app if brand-new skills were added
 

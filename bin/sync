@@ -6,6 +6,7 @@
 # - Symlinks every shared skill into .claude/skills/ and .agents/skills/
 # - Symlinks every repo-local skill from .agent-local/skills/ into both agent skill dirs
 # - Symlinks every prompt into .claude/commands/ (Codex reads ~/.codex/prompts globally)
+# - Creates a stable repo-local CLI entrypoint at .agent-config/bin/coding-agents
 # - Treats rules/base.md as the shared instruction source
 # - Treats agents.local.md as the repo-local instruction source
 # - Generates AGENTS.md = rules/base.md + agents.local.md
@@ -28,6 +29,12 @@ fi
 relpath() {
   # Cross-platform relative-path: target=$1, base=$2
   python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$2"
+}
+
+link_target_relpath() {
+  # Resolve symlinked path components before writing symlinks so links work when
+  # the target repo is reached through macOS paths such as /tmp -> /private/tmp.
+  python3 -c "import os,sys; print(os.path.relpath(os.path.realpath(sys.argv[1]), os.path.realpath(sys.argv[2])))" "$1" "$2"
 }
 
 is_generated_agents() {
@@ -78,7 +85,7 @@ link_into() {
   # link_into <source-path> <link-path>
   local src="$1" link="$2"
   local rel
-  rel="$(relpath "$src" "$(dirname "$link")")"
+  rel="$(link_target_relpath "$src" "$(dirname "$link")")"
   if [ -L "$link" ]; then
     rm "$link"
   elif [ -e "$link" ]; then
@@ -91,6 +98,12 @@ link_into() {
 
 echo "Syncing → $TARGET"
 echo "  source: $CONFIG_DIR"
+
+# --- stable CLI entrypoint ---
+# This gives every synced repo the same command for future updates, regardless of
+# whether coding-agents was adopted as a submodule, sibling checkout, or clone.
+mkdir -p "$TARGET/.agent-config/bin"
+link_into "$CONFIG_DIR/bin/coding-agents" "$TARGET/.agent-config/bin/coding-agents"
 
 link_skill_set() {
   local source_dir="$1"

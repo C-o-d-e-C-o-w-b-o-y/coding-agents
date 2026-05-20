@@ -2,11 +2,12 @@ Update this repository to the latest shared `coding-agents` state.
 
 Steps:
 
-1. Find the `coding-agents` CLI. Prefer `.agent-config/bin/coding-agents`, then `coding-agents` on PATH, then `../coding-agents/bin/coding-agents`.
-2. Run the real managed update flow for the current repo with `coding-agents update <repo>`.
-3. Verify the result with `coding-agents doctor <repo>`.
+1. Run the real managed update flow for the current repo with `.agent-config/bin/coding-agents update <repo>`.
+2. Verify the result with `.agent-config/bin/coding-agents doctor <repo>`.
+3. If `.agent-config/bin/coding-agents` is unavailable, stop and say that the repo needs initial coding-agents setup first.
 4. Report what changed:
    - shared skills synced
+   - whether `.agent-config/bin/coding-agents` is present
    - whether `AGENTS.md` was regenerated
    - whether repo-specific instructions live in `agents.local.md`
    - whether `CLAUDE.md` remained a regular file or became a symlink
